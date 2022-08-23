@@ -1,8 +1,12 @@
 <template>
     <div class="common-layout">
         <el-container>
-            <el-aside width="200px"></el-aside>
-            <el-main></el-main>
+            <el-aside>
+                <router-link to="/">Home</router-link>
+            </el-aside>
+            <el-main>
+                <router-view></router-view>
+            </el-main>
         </el-container>
     </div>
 </template>
@@ -22,5 +26,6 @@ import { ref } from 'vue'
 .el-aside {
     background: #ccc;
     border-right: 1px solid #ebeef5;
+    width: 20rem;
 }
 </style>
