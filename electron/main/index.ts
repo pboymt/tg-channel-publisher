@@ -45,8 +45,9 @@ async function createWindow() {
       contextIsolation: false,
     },
     minWidth: 1280,
-    minHeight: 720,
+    minHeight: 800,
   })
+  win.setMenu(null)
 
   if (app.isPackaged) {
     win.loadFile(indexHtml)
