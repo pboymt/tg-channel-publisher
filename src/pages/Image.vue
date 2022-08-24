@@ -33,6 +33,10 @@ const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
 const uploadHttpRequest: UploadProps['httpRequest'] = async (config) => {
     const { file } = config;
     console.log(file)
+    await fetch('ryukyu://upload', {
+        method: 'POST',
+        body: file.path
+    })
 }
 
 function onUploadSuccess(response: any, file: UploadFile, fileList: UploadFile[]) {
@@ -55,14 +59,16 @@ function closeDialog() {
     </h1>
     <div>
         <el-upload ref="uploadRef" :file-list="imageList" list-type="picture-card" multiple
-            accept="image/png, image/jpeg, image/webp" action="ryukyu://upload"  @success="onUploadSuccess" @remove="onRemove"
-            @preview="handlePictureCardPreview">
+            accept="image/png, image/jpeg, image/webp"  @success="onUploadSuccess"
+            @remove="onRemove" action="ryukyu://upload" @preview="handlePictureCardPreview">
+            <!-- :http-request="uploadHttpRequest" -->
             <el-icon>
                 <Plus />
             </el-icon>
         </el-upload>
     </div>
-    <el-image-viewer v-if="dialogVisible" @close="closeDialog" :url-list="imagePreviewList" :initial-index="dialogImageIndex">
+    <el-image-viewer v-if="dialogVisible" @close="closeDialog" :url-list="imagePreviewList"
+        :initial-index="dialogImageIndex">
 
     </el-image-viewer>
 </template>

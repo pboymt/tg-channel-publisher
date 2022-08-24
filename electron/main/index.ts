@@ -2,6 +2,7 @@ import { app, BrowserWindow, shell, ipcMain, protocol } from 'electron'
 import { mkdir } from 'fs/promises'
 import { release } from 'os'
 import { join } from 'path'
+import { URL, parse } from 'url'
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -38,13 +39,24 @@ async function registerProtocol() {
   const IMAGE_PATH = join(app.getPath('userData'), 'images')
   await mkdir(IMAGE_PATH, { recursive: true })
   protocol.registerFileProtocol('ryukyu', (request, callback) => {
-    // console.log(request.)
-    callback('ok')
+    const url = new URL(request.url)
     // { path: join(app.getPath('userData'),request.method)}
   });
-  protocol.registerStreamProtocol('ryukyu', (request, callback) => {
+  // protocol.registerHttpProtocol('ryukyu', (request, callback) => {
+  //   console.log('http')
+  //   console.log(request)
+  //   callback({
+  //     mimeType: 'text/html',
+  //     method: request.method,
+  //     headers: {
+  //       'Access-Control-Allow-Origin': '*',
+  //     },
+  //     data: '<h1>Hello World</h1>'
+  //   })
+  // })
+  // protocol.registerStreamProtocol('ryukyu', (request, callback) => {
 
-  })
+  // })
 }
 
 async function createWindow() {
@@ -83,6 +95,10 @@ async function createWindow() {
     return { action: 'deny' }
   })
 }
+
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'ryukyu', privileges: { standard: true, bypassCSP: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true } },
+])
 
 app.whenReady().then(registerProtocol).then(createWindow)
 
