@@ -1,4 +1,5 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, protocol } from 'electron'
+import { mkdir } from 'fs/promises'
 import { release } from 'os'
 import { join } from 'path'
 
@@ -31,6 +32,20 @@ const preload = join(__dirname, '../preload/index.js')
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin
 const url = `http://${process.env['VITE_DEV_SERVER_HOST']}:${process.env['VITE_DEV_SERVER_PORT']}`
 const indexHtml = join(ROOT_PATH.dist, 'index.html')
+
+async function registerProtocol() {
+  // protocol.sche
+  const IMAGE_PATH = join(app.getPath('userData'), 'images')
+  await mkdir(IMAGE_PATH, { recursive: true })
+  protocol.registerFileProtocol('ryukyu', (request, callback) => {
+    // console.log(request.)
+    callback('ok')
+    // { path: join(app.getPath('userData'),request.method)}
+  });
+  protocol.registerStreamProtocol('ryukyu', (request, callback) => {
+
+  })
+}
 
 async function createWindow() {
   win = new BrowserWindow({
@@ -69,7 +84,7 @@ async function createWindow() {
   })
 }
 
-app.whenReady().then(createWindow)
+app.whenReady().then(registerProtocol).then(createWindow)
 
 app.on('window-all-closed', () => {
   win = null

@@ -1,5 +1,5 @@
 <template>
     <h1>
-        RYUKYU DOG PUBLISHER
+        设置
     </h1>
 </template>

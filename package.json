@@ -1,5 +1,5 @@
 {
-  "name": "electron-vue-vite",
+  "name": "ryukyu-dog-publisher",
   "version": "2.0.0",
   "main": "dist/electron/main/index.js",
   "description": "Really simple Electron + Vue + Vite boilerplate.",
@@ -36,6 +36,7 @@
     "vue"
   ],
   "dependencies": {
+    "@element-plus/icons-vue": "^2.0.9",
     "element-plus": "^2.2.14",
     "vue-router": "^4.1.4"
   }
