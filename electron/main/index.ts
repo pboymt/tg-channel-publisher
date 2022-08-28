@@ -40,6 +40,7 @@ async function registerProtocol() {
   await mkdir(IMAGE_PATH, { recursive: true })
   protocol.registerFileProtocol('ryukyu', (request, callback) => {
     const url = new URL(request.url)
+    console.log(url)
     // { path: join(app.getPath('userData'),request.method)}
   });
   // protocol.registerHttpProtocol('ryukyu', (request, callback) => {

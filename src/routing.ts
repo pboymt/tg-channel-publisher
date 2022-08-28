@@ -1,8 +1,8 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import HomeVue from './pages/Home.vue'
-import ImageVue from './pages/Image.vue'
 import AboutVue from './pages/About.vue'
 import ConfigVue from './pages/Config.vue'
+import PostVue from './pages/Post.vue'
 
 const routes: RouteRecordRaw[] = [
     {
@@ -10,8 +10,8 @@ const routes: RouteRecordRaw[] = [
         component: HomeVue,
     },
     {
-        path: '/image',
-        component: ImageVue
+        path: '/post',
+        component: PostVue
     },
     {
         path: '/config',

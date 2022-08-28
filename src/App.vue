@@ -10,11 +10,11 @@
                             </el-icon>
                             <span slot="title">主页</span>
                         </el-menu-item>
-                        <el-menu-item index="/image">
+                        <el-menu-item index="/post">
                             <el-icon>
                                 <PictureFilled />
                             </el-icon>
-                            <span slot="title">图片</span>
+                            <span slot="title">消息</span>
                         </el-menu-item>
                         <el-menu-item index="/config">
                             <el-icon>
@@ -31,11 +31,9 @@
                     </el-menu>
                 </el-scrollbar>
             </el-aside>
-            <el-main>
-                <el-scrollbar>
-                    <router-view></router-view>
-                </el-scrollbar>
-            </el-main>
+            <el-container class="content-layout">
+                <router-view></router-view>
+            </el-container>
         </el-container>
     </div>
 </template>
@@ -51,7 +49,14 @@ import { HomeFilled, PictureFilled, InfoFilled, Tools } from '@element-plus/icon
     display: flex;
     flex-direction: column;
     height: 100vh;
+    overflow: hidden;
 }
+
+
+// .content-layout {
+//     overflow: auto;
+//     max-height: 100vh;
+// }
 
 .el-aside {
     // background: #ccc;
