@@ -1,6 +1,7 @@
 import { lstat } from 'fs/promises'
 import { cwd } from 'process'
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, shell } from 'electron'
+
 
 ipcRenderer.on('main-process-message', (_event, ...args) => {
   console.log('[Receive Main-process message]:', ...args)
@@ -11,3 +12,7 @@ lstat(cwd()).then(stats => {
 }).catch(err => {
   console.error(err)
 })
+
+export function openURL(url: string) {
+  shell.openExternal(url)
+}

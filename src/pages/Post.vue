@@ -3,12 +3,14 @@ import { ref, computed, ComputedRef, reactive, nextTick } from 'vue';
 import { Plus } from '@element-plus/icons-vue';
 import { ElImageViewer, ElInput, UploadFile, UploadInstance } from 'element-plus'
 import type { UploadProps, UploadUserFile } from 'element-plus';
+import { openURL } from '@/samples/node-api';
 
 interface PostForm {
     title: string;
     content: string;
     tags: string[];
     source: string;
+    link: string;
     images: ComputedRef<string[]>;
 }
 
@@ -17,6 +19,7 @@ const form = reactive<PostForm>({
     content: '',
     tags: [],
     source: '',
+    link: '',
     images: computed(() => {
         return imageList.value.map(file => file.url!);
     }),
@@ -39,7 +42,7 @@ const InputRef = ref<InstanceType<typeof ElInput>>()
 const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
     console.log(imagePreviewList)
     const index = imagePreviewList.value.findIndex(file => {
-        console.log(file, uploadFile.url)
+        console.log(file, uploadFile.name)
         return file === uploadFile.url;
     });
     console.log(index)
@@ -59,7 +62,8 @@ const uploadHttpRequest: UploadProps['httpRequest'] = async (config) => {
 }
 
 function onUploadSuccess(response: any, file: UploadFile, fileList: UploadFile[]) {
-    imageList.value.push(file);
+    console.log(file)
+    imageList.value.push(file)
 }
 
 function onRemove(file: UploadFile, fileList: UploadFile[]) {
@@ -90,6 +94,35 @@ function handleTagInputConfirm() {
     tagInputVisible.value = false
     tagInputValue.value = ''
 }
+
+function openExternalLink(e: MouseEvent) {
+    e.preventDefault();
+    if (typeof form.link === 'string' && /^[A-z]+:\/\/.*/.test(form.link)) {
+        openURL(form.link)
+    }
+}
+
+async function caculateAlbumLayout(file: string, index: number) {
+    let width = 0;
+    let height = 0;
+    const img = new Image();
+    img.src = file;
+    return new Promise((resolve, reject) => {
+        img.addEventListener('load', () => {
+            switch (form.images.length) {
+                case 1:
+
+                    break;
+
+                default:
+                    break;
+            }
+            return {
+                backgroundImage: `url(${file})`,
+            }
+        }, { once: true })
+    })
+}
 </script>
 
 <template>
@@ -113,6 +146,7 @@ function handleTagInputConfirm() {
                             <Plus />
                         </el-icon>
                     </el-upload>
+                    <li v-for="img in form.images">{{ img }}</li>
                     <el-form :model="form">
                         <h3>标题</h3>
                         <el-form-item>
@@ -140,15 +174,54 @@ function handleTagInputConfirm() {
                         </div>
                         <h3>来源</h3>
                         <el-form-item>
-                            <el-input size="large" v-model="form.source" placeholder="请输入来源"></el-input>
+                            <el-col :span="5">
+                                <el-input size="large" v-model="form.source" placeholder="请输入来源名称"></el-input>
+                            </el-col>
+                            <el-col :span="1"></el-col>
+                            <el-col :span="18">
+                                <el-input size="large" v-model="form.link" placeholder="请输入来源链接"></el-input>
+                            </el-col>
                         </el-form-item>
                     </el-form>
                 </el-col>
                 <el-col :span="9">
                     <h3>预览</h3>
-                    <el-space fill :fill-ratio="80" alignment="center" direction="vertical">
-                        <el-card>
-                            {{ form }}
+                    <el-space fill :fill-ratio="50" direction="vertical" alignment="center" style="width: 100%;">
+                        <el-card :body-style="{ padding: '0' }" style="width: 350px;" class="telegram-preview">
+                            <div class="photos">
+                                <span v-for="(file, index) in form.images"
+                                    :style="{ backgroundImage: 'url(' + file + ')' }"></span>
+                            </div>
+                            <div class="captions">
+                                <template v-if="form.title.length">
+                                    <b>{{ form.title }}</b>
+                                    <br>
+                                </template>
+                                <template v-if="form.content.length">
+                                    <br v-if="form.title.length">
+                                    {{ form.content }}
+                                    <br>
+                                </template>
+                                <template v-if="form.tags.length">
+                                    <br v-if="(form.title.length || form.content.length)">
+                                    <span class="tag" v-for="tag in form.tags">
+                                        #{{ tag }}
+                                    </span>
+                                    <br>
+                                </template>
+                                <template v-if="form.source.length || form.link.length">
+                                    <br v-if="form.title.length || form.content.length || form.tags.length">
+                                    <template v-if="form.link.length && form.source.length">
+                                        来源：<a :href="form.link" @click="openExternalLink">{{ form.source }}</a>
+                                    </template>
+                                    <template v-if="form.link.length && !form.source.length">
+                                        来源：<a :href="form.link" @click="openExternalLink">{{ form.link }}</a>
+                                    </template>
+                                    <template v-if="!form.link.length && form.source.length">
+                                        来源：<a @click="openExternalLink">{{ form.source }}</a>
+                                    </template>
+                                </template>
+                            </div>
                         </el-card>
                     </el-space>
                 </el-col>
@@ -175,5 +248,55 @@ div.preview {
     height: 100%;
     overflow-y: auto;
     background-color: wheat;
+}
+
+.telegram-preview {
+    div.photos {
+        span {
+            display: inline-block;
+            min-height: 50px;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        span:first-child:nth-last-child(1),
+        span:first-child:nth-last-child(1)~img {
+            width: 100%;
+        }
+
+        span:first-child:nth-last-child(2),
+        span:first-child:nth-last-child(2)~img {
+            width: 50%;
+        }
+
+        span:first-child:nth-last-child(3),
+        span:first-child:nth-last-child(3)~img {
+            width: 33%;
+        }
+
+        span:first-child:nth-last-child(4),
+        span:first-child:nth-last-child(4)~img {
+            width: 25%;
+        }
+    }
+
+    div.captions {
+        padding: 15px;
+
+        p {
+            margin: 0;
+        }
+
+        a {
+            color: dodgerblue;
+            text-decoration: none;
+        }
+
+        span.tag {
+            color: dodgerblue;
+            cursor: pointer;
+        }
+    }
 }
 </style>
