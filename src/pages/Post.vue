@@ -3,7 +3,8 @@ import { ref, computed, ComputedRef, reactive, nextTick } from 'vue';
 import { Plus } from '@element-plus/icons-vue';
 import { ElImageViewer, ElInput, UploadFile, UploadInstance } from 'element-plus'
 import type { UploadProps, UploadUserFile } from 'element-plus';
-import { openURL } from '@/samples/node-api';
+import { openURL, sendMessage } from '@/samples/node-api';
+import { Config } from './Config.vue';
 
 interface PostForm {
     title: string;
@@ -38,6 +39,10 @@ const dialogVisible = ref(false)
 const tagInputVisible = ref(false)
 const tagInputValue = ref('')
 const InputRef = ref<InstanceType<typeof ElInput>>()
+
+const canSend = computed(() => {
+    return form.title.length > 0 || form.content.length > 0 || form.tags.length > 0 || form.source.length > 0 || form.link.length > 0 || form.images.length > 0;
+});
 
 const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
     console.log(imagePreviewList)
@@ -102,26 +107,21 @@ function openExternalLink(e: MouseEvent) {
     }
 }
 
-async function caculateAlbumLayout(file: string, index: number) {
-    let width = 0;
-    let height = 0;
-    const img = new Image();
-    img.src = file;
-    return new Promise((resolve, reject) => {
-        img.addEventListener('load', () => {
-            switch (form.images.length) {
-                case 1:
-
-                    break;
-
-                default:
-                    break;
-            }
-            return {
-                backgroundImage: `url(${file})`,
-            }
-        }, { once: true })
-    })
+async function send() {
+    const initValue = localStorage.getItem('config') ?? '{}';
+    const initConfig: Partial<Config> = JSON.parse(initValue)
+    if (initConfig.channel?.length) {
+        await sendMessage(initConfig.channel, {
+            title: form.title,
+            content: form.content,
+            tags: form.tags.map(t => t),
+            source: form.source,
+            link: form.link,
+            images: form.images,
+        })
+    } else {
+        alert('请先配置频道')
+    }
 }
 </script>
 
@@ -185,9 +185,12 @@ async function caculateAlbumLayout(file: string, index: number) {
                     </el-form>
                 </el-col>
                 <el-col :span="9">
-                    <h3>预览</h3>
+                    <h3 style="display:flex;">预览<span style="display: inline-block; flex: 1;"></span>
+                        <el-button size="default" @click="send">发送</el-button>
+                    </h3>
                     <el-space fill :fill-ratio="50" direction="vertical" alignment="center" style="width: 100%;">
-                        <el-card :body-style="{ padding: '0' }" style="width: 350px;" class="telegram-preview">
+                        <el-card :body-style="{ padding: '0', userSelect: 'text' }" style="width: 350px;"
+                            class="telegram-preview">
                             <div class="photos">
                                 <span v-for="(file, index) in form.images"
                                     :style="{ backgroundImage: 'url(' + file + ')' }"></span>
@@ -195,15 +198,13 @@ async function caculateAlbumLayout(file: string, index: number) {
                             <div class="captions">
                                 <template v-if="form.title.length">
                                     <b>{{ form.title }}</b>
-                                    <br>
                                 </template>
                                 <template v-if="form.content.length">
                                     <br v-if="form.title.length">
-                                    {{ form.content }}
-                                    <br>
+                                    <pre>{{ form.content }}</pre>
                                 </template>
                                 <template v-if="form.tags.length">
-                                    <br v-if="(form.title.length || form.content.length)">
+                                    <!-- <br v-if="(form.title.length || form.content.length)"> -->
                                     <span class="tag" v-for="tag in form.tags">
                                         #{{ tag }}
                                     </span>
@@ -230,7 +231,6 @@ async function caculateAlbumLayout(file: string, index: number) {
     </el-container>
     <el-image-viewer v-if="dialogVisible" @close="closeDialog" :url-list="imagePreviewList"
         :initial-index="dialogImageIndex">
-
     </el-image-viewer>
 </template>
 

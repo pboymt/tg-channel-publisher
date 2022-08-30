@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "chcp 65001 && vite",
     "build": "vue-tsc --noEmit && vite build && electron-builder"
   },
   "engines": {
@@ -37,7 +37,10 @@
   ],
   "dependencies": {
     "@element-plus/icons-vue": "^2.0.9",
+    "axios": "^0.27.2",
     "element-plus": "^2.2.14",
+    "https-proxy-agent": "^5.0.1",
+    "telegraf": "^4.9.1",
     "vue-router": "^4.1.4"
   }
 }

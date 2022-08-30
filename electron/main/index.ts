@@ -3,6 +3,7 @@ import { mkdir } from 'fs/promises'
 import { release } from 'os'
 import { join } from 'path'
 import { URL, parse } from 'url'
+import { ChannelPost, sendMessage, startBot } from './bot'
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -61,6 +62,7 @@ async function registerProtocol() {
 }
 
 async function createWindow() {
+  console.log('新建窗口')
   win = new BrowserWindow({
     title: 'Main window',
     icon: join(ROOT_PATH.public, 'favicon.ico'),
@@ -97,11 +99,12 @@ async function createWindow() {
   })
 }
 
-protocol.registerSchemesAsPrivileged([
-  { scheme: 'ryukyu', privileges: { standard: true, bypassCSP: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true } },
-])
+// protocol.registerSchemesAsPrivileged([
+//   { scheme: 'ryukyu', privileges: { standard: true, bypassCSP: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true } },
+// ])
+// .then(registerProtocol)
 
-app.whenReady().then(registerProtocol).then(createWindow)
+app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
   win = null
@@ -139,4 +142,13 @@ ipcMain.handle('open-win', (event, arg) => {
     childWindow.loadURL(`${url}/#${arg}`)
     // childWindow.webContents.openDevTools({ mode: "undocked", activate: true })
   }
+})
+
+ipcMain.handle('start-bot', (event, token: string, proxy: string) => {
+  startBot(token, proxy)
+})
+
+ipcMain.handle('send-message', (event, chatId: string | number, post: ChannelPost) => {
+  console.log(chatId, post)
+  sendMessage(chatId, post)
 })
